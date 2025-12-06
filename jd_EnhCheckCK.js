@@ -3,7 +3,6 @@ cron "6 6 6 6 *" jd_CheckCK.js, tag:京东CK检测by-ccwav
  */
 //详细说明参考 https://github.com/ccwav/QLScript2.
 const $ = new Env('CK检测');
-const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const got = require('got');
@@ -366,10 +365,6 @@ async function sendSummaryNotification() {
         
         console.log("京东CK检测结果：");
         console.log(allMessage);
-        
-        await notify.sendNotify(`${$.name}`, `${allMessage}`, {
-            url: `https://bean.m.jd.com/beanDetail/index.action?resourceValue=bean`
-        });
     }
     
     // ✨ 脚本执行完成标记,让项目能准确识别脚本完全执行完毕（保守方案需要此标记）
