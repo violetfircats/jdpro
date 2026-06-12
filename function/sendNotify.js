@@ -203,6 +203,18 @@ async function sendNotify(text, desp, params = {}, author = "\n=================
             }
         }
     }
+
+    if (process.env.SKIP_PUSH_TITLE) {
+        const keywords = process.env.SKIP_PUSH_TITLE
+            .split('&')
+            .map((kw) => kw.trim())
+            .filter(Boolean);
+        const notifyContent = `${text}\n${desp}`;
+        if (keywords.some((kw) => notifyContent.includes(kw))) {
+            console.info(text + ' 标题或内容包含屏蔽关键词，跳过推送');
+            return;
+        }
+    }
 	
     try {
         //Reset 变量

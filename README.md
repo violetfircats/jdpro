@@ -35,6 +35,62 @@ ql repo https://github.com/6dylan6/jdpro.git "jd_|jx_|jddj_" "backUp" "^jd[^_]|U
 
 5、配置通知，通知的key填写到配置管理config.sh文件；
 
+<details>
+<summary>通知关键词屏蔽：SKIP_PUSH_TITLE</summary>
+
+### 作用
+
+通过环境变量 `SKIP_PUSH_TITLE` 设置关键词，让 `sendNotify.js` 在发送通知前检查通知标题和通知内容。只要命中任意关键词，就跳过推送。
+
+### 使用方法
+
+在青龙面板新增或修改环境变量：
+
+```text
+变量名：SKIP_PUSH_TITLE
+变量值：关键词1&关键词2&关键词3
+```
+
+多个关键词用英文半角 `&` 分隔，不需要换行。
+
+示例：
+
+```text
+cookie已失效&CK已失效&请重新登录获取cookie&无好友助力&JOIN_OTHER_ACT&undefined&水滴不够
+```
+
+当前逻辑会同时检测：
+
+```text
+通知标题 text
+通知内容 desp
+```
+
+只要标题或内容里包含任意关键词，就会跳过所有通知渠道。
+
+命中后日志会出现类似内容：
+
+```text
+标题或内容包含屏蔽关键词，跳过推送
+```
+
+### 注意事项
+
+1. `&` 必须是英文半角字符，不要用中文 `＆`。
+2. 关键词是“包含匹配”，不是完全匹配。比如设置 `失效`，`cookie已失效` 和 `账号失效` 都会被拦截。
+3. 关键词前后空格会被自动去掉，所以 `水滴不够 & undefined` 也可以正常识别。
+4. 青龙面板里修改环境变量后，新启动的任务才会读取到新值。已经在运行中的任务不会自动更新。
+5. 这套逻辑只是不发送通知，不会阻止脚本继续执行任务。
+6. 如果拉库或更新脚本覆盖了 `sendNotify.js`，需要确认根目录和 `function/sendNotify.js` 里的过滤逻辑是否还存在。
+
+### 复盘记录
+
+这次失败的原因是远程青龙里存在多个 `sendNotify.js` 副本，最初只替换了 `/ql/data/deps/sendNotify.js`，但任务实际可能加载 `/ql/data/scripts/sendNotify.js` 或仓库目录里的 `sendNotify.js`，导致旧逻辑仍然发送通知。
+
+旧逻辑只检测通知标题，并且多个关键词用换行分隔；现在已改成用 `&` 分隔，并同时检测标题和正文内容。
+
+</details>
+
 
 <details>
 <summary>笔记</summary>

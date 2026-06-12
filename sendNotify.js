@@ -755,7 +755,17 @@ function formatBodyFun(contentType, body) {
 
 async function sendNotify(text, desp, params = {}) {
   const skipTitle = process.env.SKIP_PUSH_TITLE;
-  if (skipTitle && skipTitle.split('\n').includes(text)) { console.info(text + '在 SKIP_PUSH_TITLE 环境变量内，跳过推送'); return; }
+  if (skipTitle) {
+    const keywords = skipTitle
+      .split('&')
+      .map((kw) => kw.trim())
+      .filter(Boolean);
+    const notifyContent = `${text}\n${desp}`;
+    if (keywords.some((kw) => notifyContent.includes(kw))) {
+      console.info(text + ' 标题或内容包含屏蔽关键词，跳过推送');
+      return;
+    }
+  }
   if (push_config.HITOKOTO !== 'false') desp += '\n\n' + (await one());
   await Promise.all([
     serverNotify(text, desp),
